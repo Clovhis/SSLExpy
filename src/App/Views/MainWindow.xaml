@@ -1,0 +1,72 @@
+<Window x:Class="AzureKvSslExpirationChecker.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:AzureKvSslExpirationChecker.ViewModels"
+        mc:Ignorable="d"
+        Title="Azure KV SSL Expiration Checker" Height="600" Width="900">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <WrapPanel Margin="0,0,0,5" ItemWidth="200">
+                <StackPanel Width="200" Margin="0,0,10,0">
+                    <TextBlock Text="Subscription ID"/>
+                    <TextBox Text="{Binding SubscriptionId}"/>
+                </StackPanel>
+                <StackPanel Width="200" Margin="0,0,10,0">
+                    <TextBlock Text="Tenant ID"/>
+                    <TextBox Text="{Binding TenantId}"/>
+                </StackPanel>
+                <StackPanel Width="200" Margin="0,0,10,0">
+                    <TextBlock Text="Client ID"/>
+                    <TextBox Text="{Binding ClientId}"/>
+                </StackPanel>
+                <StackPanel Width="200" Margin="0,0,10,0">
+                    <TextBlock Text="Client Secret"/>
+                    <PasswordBox Password="{Binding ClientSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Width="120" Margin="0,0,10,0">
+                    <TextBlock Text="Warning Days"/>
+                    <TextBox Text="{Binding ThresholdDays}"/>
+                </StackPanel>
+                <StackPanel Width="300">
+                    <TextBlock Text="Output Folder"/>
+                    <DockPanel>
+                        <TextBox Text="{Binding OutputFolder}" Width="250"/>
+                        <Button Content="..." Command="{Binding BrowseFolderCommand}" Width="40"/>
+                    </DockPanel>
+                </StackPanel>
+            </WrapPanel>
+            <ProgressBar Height="20" IsIndeterminate="{Binding IsScanning}" Visibility="Visible"/>
+            <TextBlock Text="{Binding ProgressText}" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Vault" Binding="{Binding VaultName}" Width="*"/>
+                <DataGridTextColumn Header="Certificate" Binding="{Binding CertificateName}" Width="2*"/>
+                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="*"/>
+                <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="*"/>
+                <DataGridTextColumn Header="NotBefore" Binding="{Binding NotBefore}" Width="*"/>
+                <DataGridTextColumn Header="ExpiresOn" Binding="{Binding ExpiresOn}" Width="*"/>
+                <DataGridTextColumn Header="Days" Binding="{Binding DaysUntilExpiry}" Width="*"/>
+                <DataGridTextColumn Header="Warning" Binding="{Binding IsWarning}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Start Scan" Command="{Binding StartScanAsyncCommand}" IsEnabled="{Binding CanStart}"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" IsEnabled="{Binding IsScanning}"/>
+            <Button Content="Open Output Folder" Command="{Binding OpenOutputFolderCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>
