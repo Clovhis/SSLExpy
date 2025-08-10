@@ -36,7 +36,8 @@ namespace AzureKvSslExpirationChecker.Services
             string clientSecret,
             int thresholdDays,
             IProgress<string> log,
-            CancellationToken ct)
+            CancellationToken ct,
+            Action<CertificateRecord>? onRecord = null)
         {
             var sw = Stopwatch.StartNew();
             var records = new List<CertificateRecord>();
@@ -47,6 +48,7 @@ namespace AzureKvSslExpirationChecker.Services
             var subscription = arm.GetSubscriptionResource(new ResourceIdentifier($"/subscriptions/{subscriptionId}"));
 
             var vaults = new List<KeyVaultResource>();
+            log.Report("Enumerando vaults...");
             await RetryPolicy.RunAsync(async () =>
             {
                 await foreach (var v in subscription.GetKeyVaultsAsync(cancellationToken: ct))
@@ -58,9 +60,9 @@ namespace AzureKvSslExpirationChecker.Services
             foreach (var vault in vaults)
             {
                 ct.ThrowIfCancellationRequested();
-                log.Report($"Scanning vault {vault.Data.Name}...");
+                log.Report($"Procesando {vault.Data.Properties.VaultUri}...");
                 var certClient = new CertificateClient(vault.Data.Properties.VaultUri!, credential);
-
+                var before = records.Count;
                 await RetryPolicy.RunAsync(async () =>
                 {
                     await foreach (var prop in certClient.GetPropertiesOfCertificatesAsync(cancellationToken: ct))
@@ -79,8 +81,11 @@ namespace AzureKvSslExpirationChecker.Services
                             IsWarning = days.HasValue && days.Value <= thresholdDays
                         };
                         records.Add(record);
+                        onRecord?.Invoke(record);
                     }
                 }, log, ct);
+                var found = records.Count - before;
+                log.Report($"{found} certificados encontrados...");
             }
 
             sw.Stop();
