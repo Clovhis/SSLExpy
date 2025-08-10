@@ -3,4 +3,9 @@
     <Color x:Key="PrimaryColor">#0078D4</Color>
     <Color x:Key="BackgroundColor">#FF1E1E1E</Color>
     <Color x:Key="ForegroundColor">#FFFFFFFF</Color>
+
+    <!-- Brushes derived from the base colors -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
+    <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
 </ResourceDictionary>
