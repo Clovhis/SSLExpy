@@ -18,13 +18,11 @@ namespace AzureKvSslExpirationChecker.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly AzureScanService _scanService;
-        private readonly ReportWriter _reportWriter;
 
         public MainViewModel()
         {
             var auth = new AzureAuthFactory();
             _scanService = new AzureScanService(auth);
-            _reportWriter = new ReportWriter();
             Records = new ObservableCollection<CertificateRecord>();
             Logs = new ObservableCollection<string>();
             ThresholdDays = 30;
@@ -140,6 +138,7 @@ namespace AzureKvSslExpirationChecker.ViewModels
                     TenantId,
                     ClientId,
                     ClientSecret,
+                    OutputFolder,
                     ThresholdDays,
                     progress,
                     _cts.Token).ConfigureAwait(false);
@@ -147,10 +146,7 @@ namespace AzureKvSslExpirationChecker.ViewModels
                 foreach (var r in result.Records)
                     Records.Add(r);
 
-                var reportPath = await _reportWriter.WriteTxtAsync(result, SubscriptionId, ThresholdDays, OutputFolder, _cts.Token).ConfigureAwait(false);
                 SummaryText = $"Vaults: {result.VaultCount}  Certificates: {result.CertificateCount}  Warnings: {result.WarningCount}  Duration: {result.Duration}";
-                Logs.Add($"Report saved to {reportPath}");
-                Logger.Log($"Report saved to {reportPath}");
             }
             catch (OperationCanceledException)
             {
