@@ -59,14 +59,14 @@ my-vault             www.contoso.com                         1234567890abcdef   
 dotnet restore ./src/App/AzureKvSslExpirationChecker.csproj
 dotnet build ./src/App/AzureKvSslExpirationChecker.csproj
 ```
-To publish a portable executable:
+To publish a portable folder:
 ```bash
-dotnet publish ./src/App/AzureKvSslExpirationChecker.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:EnableCompressionInSingleFile=true
+dotnet publish ./src/App/AzureKvSslExpirationChecker.csproj -c Release -r win-x64 --self-contained true
 ```
-The output can be zipped as `AzureKvSslExpirationChecker_win-x64.zip`.
+Rename the publish output folder as desired and zip it (e.g., `AzureKvSslExpirationChecker_win-x64.zip`).
 
 ## CI Workflow
-Pushes to branches matching `feature/*` trigger a GitHub Action that builds the project, publishes a self-contained executable, and creates a GitHub Release with the zipped artifact.
+Pushes to branches matching `feature/*` trigger a GitHub Action that builds the project, publishes a self-contained folder, and creates a GitHub Release with the zipped artifact.
 
 ## License
 MIT
