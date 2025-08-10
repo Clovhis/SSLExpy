@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:AzureKvSslExpirationChecker.ViewModels"
+        xmlns:helpers="clr-namespace:AzureKvSslExpirationChecker.Helpers"
         mc:Ignorable="d"
         Title="Azure KV SSL Expiration Checker" Height="600" Width="900">
     <Window.DataContext>
@@ -32,7 +33,8 @@
                 </StackPanel>
                 <StackPanel Width="200" Margin="0,0,10,0">
                     <TextBlock Text="Client Secret"/>
-                    <PasswordBox Password="{Binding ClientSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <PasswordBox helpers:PasswordBoxHelper.BindPassword="True"
+                                 helpers:PasswordBoxHelper.BoundPassword="{Binding ClientSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
                 <StackPanel Width="120" Margin="0,0,10,0">
                     <TextBlock Text="Warning Days"/>
