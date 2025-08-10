@@ -52,22 +52,29 @@
             <TextBlock Text="{Binding ProgressText}" Margin="0,5,0,0"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Vault" Binding="{Binding VaultName}" Width="*"/>
-                <DataGridTextColumn Header="Certificate" Binding="{Binding CertificateName}" Width="2*"/>
-                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="*"/>
-                <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="*"/>
-                <DataGridTextColumn Header="NotBefore" Binding="{Binding NotBefore}" Width="*"/>
-                <DataGridTextColumn Header="ExpiresOn" Binding="{Binding ExpiresOn}" Width="*"/>
-                <DataGridTextColumn Header="Days" Binding="{Binding DaysUntilExpiry}" Width="*"/>
-                <DataGridTextColumn Header="Warning" Binding="{Binding IsWarning}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="120"/>
+            </Grid.RowDefinitions>
+            <DataGrid Grid.Row="0" ItemsSource="{Binding Records}" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Vault" Binding="{Binding VaultName}" Width="*"/>
+                    <DataGridTextColumn Header="Certificate" Binding="{Binding CertificateName}" Width="2*"/>
+                    <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="*"/>
+                    <DataGridTextColumn Header="NotBefore" Binding="{Binding NotBefore}" Width="*"/>
+                    <DataGridTextColumn Header="ExpiresOn" Binding="{Binding ExpiresOn}" Width="*"/>
+                    <DataGridTextColumn Header="Days" Binding="{Binding DaysUntilExpiry}" Width="*"/>
+                    <DataGridTextColumn Header="Warning" Binding="{Binding IsWarning}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <RichTextBox x:Name="rtbLog" Grid.Row="1" Margin="0,10,0,0" IsReadOnly="True"/>
+        </Grid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Start Scan" Command="{Binding StartScanAsyncCommand}" IsEnabled="{Binding CanStart}" Margin="0,0,10,0"/>
-            <Button Content="Cancel" Command="{Binding CancelCommand}" IsEnabled="{Binding IsScanning}" Margin="0,0,10,0"/>
+            <Button x:Name="btnStartScan" Content="Start Scan" Margin="0,0,10,0"/>
+            <Button x:Name="btnCancel" Content="Cancel" IsEnabled="False" Margin="0,0,10,0"/>
             <Button Content="Open Output Folder" Command="{Binding OpenOutputFolderCommand}"/>
         </StackPanel>
     </Grid>
