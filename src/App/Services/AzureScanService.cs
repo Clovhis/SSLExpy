@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -34,6 +36,7 @@ namespace AzureKvSslExpirationChecker.Services
             string tenantId,
             string clientId,
             string clientSecret,
+            string outputFolder,
             int thresholdDays,
             IProgress<string> log,
             CancellationToken ct,
@@ -48,7 +51,7 @@ namespace AzureKvSslExpirationChecker.Services
             var subscription = arm.GetSubscriptionResource(new ResourceIdentifier($"/subscriptions/{subscriptionId}"));
 
             var vaults = new List<KeyVaultResource>();
-            log.Report("Enumerando vaults...");
+            log.Report("Enumerating vaults...");
             await RetryPolicy.RunAsync(async () =>
             {
                 await foreach (var v in subscription.GetKeyVaultsAsync(cancellationToken: ct))
@@ -60,7 +63,7 @@ namespace AzureKvSslExpirationChecker.Services
             foreach (var vault in vaults)
             {
                 ct.ThrowIfCancellationRequested();
-                log.Report($"Procesando {vault.Data.Properties.VaultUri}...");
+                log.Report($"Processing {vault.Data.Properties.VaultUri}...");
                 var certClient = new CertificateClient(vault.Data.Properties.VaultUri!, credential);
                 var before = records.Count;
                 await RetryPolicy.RunAsync(async () =>
@@ -85,7 +88,7 @@ namespace AzureKvSslExpirationChecker.Services
                     }
                 }, log, ct);
                 var found = records.Count - before;
-                log.Report($"{found} certificados encontrados...");
+                log.Report($"{found} certificates found...");
             }
 
             sw.Stop();
@@ -98,6 +101,19 @@ namespace AzureKvSslExpirationChecker.Services
                 Duration = sw.Elapsed,
                 ScannedAtUtc = DateTimeOffset.UtcNow
             };
+
+            Directory.CreateDirectory(outputFolder);
+            var sb = new StringBuilder();
+            sb.AppendLine("Vault\tCertificate\tVersion\tEnabled\tNotBefore\tExpiresOn\tDays\tWarning");
+            foreach (var r in records)
+            {
+                sb.AppendLine($"{r.VaultName}\t{r.CertificateName}\t{r.Version}\t{r.Enabled}\t{r.NotBefore:yyyy-MM-dd}\t{r.ExpiresOn:yyyy-MM-dd}\t{r.DaysUntilExpiry}\t{r.IsWarning}");
+            }
+            var fileName = $"certificates_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+            var fullPath = Path.Combine(outputFolder, fileName);
+            File.WriteAllText(fullPath, sb.ToString(), Encoding.UTF8);
+            log.Report($"Report saved: {fullPath}");
+
             return result;
         }
     }

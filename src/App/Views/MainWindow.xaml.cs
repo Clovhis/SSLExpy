@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.ComponentModel;
 using Azure;
 using Azure.Identity;
 using AzureKvSslExpirationChecker.Models;
@@ -22,27 +23,46 @@ namespace AzureKvSslExpirationChecker.Views
         public MainWindow()
         {
             InitializeComponent();
+            TxtSubscriptionId.Text = Properties.Settings.Default.SubscriptionId ?? string.Empty;
+            TxtTenantId.Text       = Properties.Settings.Default.TenantId ?? string.Empty;
+            TxtClientId.Text       = Properties.Settings.Default.ClientId ?? string.Empty;
+            TxtOutputFolder.Text   = Properties.Settings.Default.OutputFolder ?? string.Empty;
+            TxtWarningDays.Text    = (Properties.Settings.Default.WarningDays > 0 ? Properties.Settings.Default.WarningDays : 90).ToString();
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.ClientSecret))
+                PwdClientSecret.Password = Properties.Settings.Default.ClientSecret;
             btnStartScan.Click += btnStartScan_Click;
             btnCancel.Click += btnCancel_Click;
             _scanService = new AzureScanService(new AzureAuthFactory());
         }
 
-        private void AppendLog(string message)
+        private void Log(string message)
         {
-            string line = $"[{DateTime.UtcNow:HH:mm:ss}] {message}";
-            if (rtbLog.Dispatcher.CheckAccess())
+            var line = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            if (TxtLog.Dispatcher.CheckAccess())
             {
-                rtbLog.AppendText(line + Environment.NewLine);
-                rtbLog.ScrollToEnd();
+                TxtLog.AppendText(line + Environment.NewLine);
+                TxtLog.ScrollToEnd();
             }
             else
             {
-                rtbLog.Dispatcher.BeginInvoke(new Action(() =>
+                TxtLog.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    rtbLog.AppendText(line + Environment.NewLine);
-                    rtbLog.ScrollToEnd();
+                    TxtLog.AppendText(line + Environment.NewLine);
+                    TxtLog.ScrollToEnd();
                 }));
             }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Properties.Settings.Default.SubscriptionId = TxtSubscriptionId.Text.Trim();
+            Properties.Settings.Default.TenantId       = TxtTenantId.Text.Trim();
+            Properties.Settings.Default.ClientId       = TxtClientId.Text.Trim();
+            Properties.Settings.Default.OutputFolder   = TxtOutputFolder.Text.Trim();
+            if (int.TryParse(TxtWarningDays.Text, out var wd)) Properties.Settings.Default.WarningDays = wd;
+            // Properties.Settings.Default.ClientSecret = PwdClientSecret.Password; // only if chosen
+            Properties.Settings.Default.Save();
         }
 
         private async void btnStartScan_Click(object sender, RoutedEventArgs e)
@@ -53,7 +73,7 @@ namespace AzureKvSslExpirationChecker.Views
                 btnCancel.IsEnabled = true;
                 var vm = (MainViewModel)DataContext;
                 vm.Records.Clear();
-                rtbLog.Document.Blocks.Clear();
+                TxtLog.Clear();
                 _cts = new CancellationTokenSource();
 
                 string subscriptionId = vm.SubscriptionId?.Trim();
@@ -69,36 +89,36 @@ namespace AzureKvSslExpirationChecker.Views
                     string.IsNullOrWhiteSpace(clientSecret) ||
                     string.IsNullOrWhiteSpace(outputFolder))
                 {
-                    AppendLog("Faltan datos obligatorios (Subscription/Tenant/Client/Secret/Output).");
+                    Log("Missing required data (Subscription/Tenant/Client/Secret/Output).");
                     return;
                 }
 
                 Directory.CreateDirectory(outputFolder);
 
-                AppendLog("Iniciando autenticación…");
+                Log("Starting authentication...");
                 var cred = new ClientSecretCredential(tenantId, clientId, clientSecret);
-                AppendLog("Autenticado OK.");
+                Log("Authentication succeeded.");
 
-                var progress = new Progress<string>(msg => AppendLog(msg));
+                var progress = new Progress<string>(msg => Log(msg));
 
-                await _scanService.ScanAsync(subscriptionId, tenantId, clientId, clientSecret, warningDays, progress, _cts.Token, record =>
+                await _scanService.ScanAsync(subscriptionId, tenantId, clientId, clientSecret, outputFolder, warningDays, progress, _cts.Token, record =>
                 {
                     Dispatcher.BeginInvoke(new Action(() => vm.Records.Add(record)));
                 });
 
-                AppendLog("Scan finalizado.");
+                Log("Scan completed.");
             }
             catch (RequestFailedException ex)
             {
-                AppendLog($"Error Azure ({ex.Status}/{ex.ErrorCode}): {ex.Message}");
+                Log($"Azure error ({ex.Status}/{ex.ErrorCode}): {ex.Message}");
             }
             catch (OperationCanceledException)
             {
-                AppendLog("Operación cancelada por el usuario.");
+                Log("Operation canceled by user.");
             }
             catch (Exception ex)
             {
-                AppendLog($"Error inesperado: {ex.Message}");
+                Log($"Unexpected error: {ex.Message}");
             }
             finally
             {
@@ -110,7 +130,7 @@ namespace AzureKvSslExpirationChecker.Views
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             _cts?.Cancel();
-            AppendLog("Cancelando…");
+            Log("Canceling...");
         }
     }
 }
