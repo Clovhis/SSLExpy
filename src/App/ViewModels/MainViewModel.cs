@@ -125,9 +125,11 @@ namespace AzureKvSslExpirationChecker.ViewModels
             ProgressText = string.Empty;
             SummaryText = string.Empty;
             _cts = new CancellationTokenSource();
+            Logger.Log("Scan started");
             var progress = new Progress<string>(msg =>
             {
                 Logs.Add(msg);
+                Logger.Log(msg);
                 ProgressText = msg;
             });
 
@@ -148,18 +150,22 @@ namespace AzureKvSslExpirationChecker.ViewModels
                 var reportPath = await _reportWriter.WriteTxtAsync(result, SubscriptionId, ThresholdDays, OutputFolder, _cts.Token).ConfigureAwait(false);
                 SummaryText = $"Vaults: {result.VaultCount}  Certificates: {result.CertificateCount}  Warnings: {result.WarningCount}  Duration: {result.Duration}";
                 Logs.Add($"Report saved to {reportPath}");
+                Logger.Log($"Report saved to {reportPath}");
             }
             catch (OperationCanceledException)
             {
                 Logs.Add("Scan canceled.");
+                Logger.Log("Scan canceled.");
             }
             catch (Exception ex)
             {
                 Logs.Add($"Error: {ex.Message}");
+                Logger.Log("Error", ex);
                 System.Windows.MessageBox.Show("An error occurred. See log for details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
+                Logger.Log("Scan finished");
                 IsScanning = false;
             }
         }

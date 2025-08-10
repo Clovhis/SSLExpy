@@ -3,8 +3,8 @@
     <Style x:Key="BaseButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="5"/>
         <Setter Property="Padding" Value="8,4"/>
-        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
-        <Setter Property="Foreground" Value="{StaticResource ForegroundColor}"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
     </Style>
     <Style TargetType="TextBox">
         <Setter Property="Margin" Value="0,0,0,5"/>
