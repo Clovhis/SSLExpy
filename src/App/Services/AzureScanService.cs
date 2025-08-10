@@ -4,9 +4,11 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Core;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Azure.ResourceManager.KeyVault;
+using Azure.ResourceManager.Resources;
 using Azure.Security.KeyVault.Certificates;
 using AzureKvSslExpirationChecker.Models;
 
@@ -47,7 +49,7 @@ namespace AzureKvSslExpirationChecker.Services
             var vaults = new List<KeyVaultResource>();
             await RetryPolicy.RunAsync(async () =>
             {
-                await foreach (var v in subscription.GetKeyVaults().GetAllAsync(cancellationToken: ct))
+                await foreach (var v in subscription.GetKeyVaultsAsync(cancellationToken: ct))
                 {
                     vaults.Add(v);
                 }
@@ -57,7 +59,7 @@ namespace AzureKvSslExpirationChecker.Services
             {
                 ct.ThrowIfCancellationRequested();
                 log.Report($"Scanning vault {vault.Data.Name}...");
-                var certClient = new CertificateClient(new Uri(vault.Data.Properties.VaultUri!), credential);
+                var certClient = new CertificateClient(vault.Data.Properties.VaultUri!, credential);
 
                 await RetryPolicy.RunAsync(async () =>
                 {
@@ -67,7 +69,7 @@ namespace AzureKvSslExpirationChecker.Services
                         var record = new CertificateRecord
                         {
                             VaultName = vault.Data.Name,
-                            VaultUri = vault.Data.Properties.VaultUri!,
+                            VaultUri = vault.Data.Properties.VaultUri!.ToString(),
                             CertificateName = prop.Name,
                             Version = prop.Version,
                             Enabled = prop.Enabled,
