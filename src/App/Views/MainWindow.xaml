@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:AzureKvSslExpirationChecker.ViewModels"
         xmlns:helpers="clr-namespace:AzureKvSslExpirationChecker.Helpers"
         mc:Ignorable="d"
-        Title="Azure KV SSL Expiration Checker" Height="600" Width="900">
+        Title="EY-GDS SRE SSL-ExpiryShield" Height="600" Width="900">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -30,7 +31,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Subscription ID:" VerticalAlignment="Center" Margin="0,0,8,8"/>
@@ -39,10 +39,10 @@
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Tenant ID:" VerticalAlignment="Center" Margin="0,0,8,8"/>
                 <TextBox x:Name="TxtTenantId" Grid.Row="1" Grid.Column="1" Text="{Binding TenantId}" HorizontalAlignment="Stretch" MinWidth="400" Margin="0,0,0,8"/>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Client ID:" VerticalAlignment="Center" Margin="0,0,8,8"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="SPN (Client ID):" VerticalAlignment="Center" Margin="0,0,8,8"/>
                 <TextBox x:Name="TxtClientId" Grid.Row="2" Grid.Column="1" Text="{Binding ClientId}" HorizontalAlignment="Stretch" MinWidth="400" Margin="0,0,0,8"/>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Client Secret:" VerticalAlignment="Center" Margin="0,0,8,8"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="SPN (Client Secret):" VerticalAlignment="Center" Margin="0,0,8,8"/>
                 <PasswordBox x:Name="PwdClientSecret" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="400" Margin="0,0,0,8"
                              helpers:PasswordBoxHelper.BindPassword="True"
                              helpers:PasswordBoxHelper.BoundPassword="{Binding ClientSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -50,10 +50,13 @@
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Output Folder:" VerticalAlignment="Center" Margin="0,0,8,8"/>
                 <TextBox x:Name="TxtOutputFolder" Grid.Row="4" Grid.Column="1" Text="{Binding OutputFolder}" HorizontalAlignment="Stretch" MinWidth="400" Margin="0,0,0,8"/>
                 <Button Grid.Row="4" Grid.Column="2" Content="..." Command="{Binding BrowseFolderCommand}" Width="40" Margin="8,0,0,8"/>
-
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Warning Days:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBox x:Name="TxtWarningDays" Grid.Row="5" Grid.Column="1" Text="{Binding ThresholdDays}" HorizontalAlignment="Stretch" MinWidth="400"/>
             </Grid>
+            <TextBlock Margin="0,0,0,10" FontSize="11" Foreground="#444" TextWrapping="Wrap">
+                <Run Text="Instructions:"/><LineBreak/>
+                <Run Text="1. Enter your Azure Service Principal (SPN) credentials with access to the subscription’s Key Vaults."/><LineBreak/>
+                <Run Text="2. Set Output Folder."/><LineBreak/>
+                <Run Text="3. Click “Start Scan” to authenticate and generate certificate expiry reports."/>
+            </TextBlock>
             <ProgressBar Height="20" IsIndeterminate="{Binding IsScanning}" Visibility="Visible"/>
             <TextBlock Text="{Binding ProgressText}" Margin="0,5,0,0"/>
         </StackPanel>
@@ -64,6 +67,21 @@
                 <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0" ItemsSource="{Binding Records}" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="White"/>
+                        <Style.Triggers>
+                            <!-- Expired -> Red -->
+                            <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                <Setter Property="Background" Value="#FFE6B8B8"/>
+                            </DataTrigger>
+                            <!-- Warning (<= 90 days) -> Yellow -->
+                            <DataTrigger Binding="{Binding IsWarning}" Value="True">
+                                <Setter Property="Background" Value="#FFFFF3CD"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Vault" Binding="{Binding VaultName}" Width="*"/>
                     <DataGridTextColumn Header="Certificate" Binding="{Binding CertificateName}" Width="2*"/>
@@ -83,5 +101,14 @@
             <Button x:Name="btnCancel" Content="Cancel" IsEnabled="False" Margin="0,0,10,0"/>
             <Button Content="Open Output Folder" Command="{Binding OpenOutputFolderCommand}"/>
         </StackPanel>
+        <StatusBar Grid.Row="3" Padding="4">
+            <StatusBarItem>
+                <TextBlock Text="Author: Leo Vargas — Property of EY GDS CTP-SRE Team"
+                           VerticalAlignment="Center"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Image Width="24" Height="24" Source="pack://application:,,,/Assets/ey_logo_24.png" Stretch="None"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

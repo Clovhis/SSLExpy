@@ -1,72 +1,37 @@
-# Azure KV SSL Expiration Checker
+# EY-GDS SRE SSL-ExpiryShield
 
-## Overview
-Azure KV SSL Expiration Checker is a portable Windows desktop application built with WPF and .NET 8. It authenticates with an Azure Service Principal and scans all Azure Key Vaults in a subscription for certificate expirations. Certificates nearing expiration are highlighted and included in a timestamped text report.
+A Windows desktop utility to authenticate with Azure using a Service Principal, enumerate all Key Vaults in a subscription, and export SSL/TLS certificate expirations with live logging and CSV/TXT reports.
 
-## Features
-- Authenticate using Azure Client Secret credentials.
-- Enumerate all Key Vaults and certificates in a subscription.
-- Calculate days until each certificate expires.
-- Highlight certificates that are near expiration.
-- Export scan results to a UTF-8 text file.
-- Responsive UI with progress logging and cancellation support.
+- Highlights:
+  - Live log panel with real-time progress
+  - Enumerates Key Vaults via ARM; lists certificates via Key Vault data plane
+  - Warning threshold configurable (default 90 days)
+  - TXT and CSV export to the chosen Output Folder
+  - Persistent user settings for all input fields
+  - Color-coded rows: Red (expired), Yellow (<= 90 days), White (> 90 days)
 
-## Prerequisites
-- Windows 11.
-- Azure subscription with Key Vaults.
-- Service Principal with access to the subscription and **get/list** permissions for Key Vault certificates.
+## Getting Started
+1. Prerequisites: .NET 8 Desktop Runtime, Azure credentials (Tenant ID, Client ID, Client Secret), Subscription ID, Key Vault data-plane permissions to list/read certificates.
+2. Download the latest release (EY-GDS SRE SSL-ExpiryShield.zip), extract and run the executable.
+3. Enter Tenant ID, Client ID, Client Secret, Subscription ID, Output Folder, and Warning Days.
+4. Click "Start Scan" to authenticate, enumerate vaults, and generate the report. Use "Open Output Folder" to quickly access exports.
 
-## Usage
-1. Launch the provided `AzureKvSslExpirationChecker.exe`.
-2. Enter the Subscription ID, Tenant ID, Client ID, and Client Secret.
-3. Choose a warning threshold (days) and an output folder.
-4. Click **Start Scan**.
-5. Review results in the UI and open the generated report.
+## Output
+- A TXT file (certificates_yyyyMMdd_HHmmss.txt) and CSV file in the selected Output Folder with columns:
+  Vault, Certificate, Version, Enabled, NotBefore, ExpiresOn, Days, Warning
 
-## Configuration Fields
-| Field | Description |
-|-------|-------------|
-| Subscription ID | Azure subscription to scan. |
-| Tenant ID | Azure Active Directory tenant. |
-| Client ID | Application (client) ID of the Service Principal. |
-| Client Secret | Secret for the Service Principal. |
-| Warning threshold | Number of days before expiration that triggers a warning. |
-| Output folder | Folder where the report will be saved. |
-
-## Report Format
-```
-Azure Key Vault SSL Certificate Scan
-Subscription: 00000000-0000-0000-0000-000000000000
-Threshold: 30 days
-Timestamp (UTC): 2024-01-01T00:00:00Z
-
-Vault                Certificate                             Version                        Enabled NotBefore                 ExpiresOn                 Days Warn
--------------------- --------------------------------------- ------------------------------ ------- ------------------------- ------------------------- ---- ----
-my-vault             www.contoso.com                         1234567890abcdef               True    2023-01-01 00:00:00Z      2024-01-01 00:00:00Z      10   Warning!
-```
-
-## Security Notes
-- Secrets are never written to logs or files.
-- Reports contain no credentials and can be safely archived.
+## Permissions
+- Control plane (enumerate Key Vaults): subscription-level Reader/Contributor/Owner etc.
+- Data plane (list/read certificates): Key Vault RBAC roles (e.g., Key Vault Certificate User/Officer/Admin) or Access Policies that include certificates/list and certificates/get.
 
 ## Troubleshooting
-- **RBAC errors**: ensure the Service Principal has Key Vault `get/list` permissions.
-- **Throttling**: the app retries transient failures automatically.
-- **No Key Vaults found**: verify the subscription ID and permissions.
+- 401/403 when listing certificates: missing data-plane permissions on the vault.
+- Empty results: ensure the subscription and tenant are correct and the SPN has access.
 
-## Build
-```bash
-dotnet restore ./src/App/AzureKvSslExpirationChecker.csproj
-dotnet build ./src/App/AzureKvSslExpirationChecker.csproj
-```
-To publish a portable folder:
-```bash
-dotnet publish ./src/App/AzureKvSslExpirationChecker.csproj -c Release -r win-x64 --self-contained true
-```
-Rename the publish output folder as desired and zip it (e.g., `AzureKvSslExpirationChecker_win-x64.zip`).
+## Author & Ownership
+- Author: [Leo Vargas](mailto:leonardo.r.vargas@gds.ey.com?subject=EY-GDS%20SRE%20SSL-ExpiryShield%20-%20Bug%20Report&body=Please%20include%20version%20and%20reproduction%20steps.)
+- Property of EY GDS CTP-SRE Team
 
-## CI Workflow
-Pushes to branches matching `feature/*` trigger a GitHub Action that builds the project, publishes a self-contained folder, and creates a GitHub Release with the zipped artifact.
+## License / Notice
+- Internal use only (EY GDS). Do not redistribute without permission.
 
-## License
-MIT

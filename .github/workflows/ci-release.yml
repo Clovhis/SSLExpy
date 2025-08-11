@@ -28,8 +28,8 @@ jobs:
       - name: Create ZIP
         run: |
           cd ./src/App/bin/Release/net8.0-windows/win-x64
-          Rename-Item publish AzureKvSslExpirationChecker
-          Compress-Archive -Path AzureKvSslExpirationChecker -DestinationPath ${{ github.workspace }}\AzureKvSslExpirationChecker_win-x64.zip
+          Rename-Item publish "EY-GDS SRE SSL-ExpiryShield"
+          Compress-Archive -Path "EY-GDS SRE SSL-ExpiryShield" -DestinationPath "${{ github.workspace }}\EY-GDS SRE SSL-ExpiryShield.zip" -Force
 
       - name: Generate timestamp
         id: date
@@ -46,7 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}.${{ steps.date.outputs.ts }}
-          name: "Azure KV SSL Expiration Checker v${{ github.run_number }}.${{ steps.date.outputs.ts }}"
+          name: "EY-GDS SRE SSL-ExpiryShield v${{ github.run_number }}.${{ steps.date.outputs.ts }}"
           generate_release_notes: true
           files: |
-            AzureKvSslExpirationChecker_win-x64.zip
+            EY-GDS SRE SSL-ExpiryShield.zip

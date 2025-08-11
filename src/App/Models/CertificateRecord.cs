@@ -31,6 +31,9 @@ namespace AzureKvSslExpirationChecker.Models
         /// <summary>Number of days remaining until expiration. Null if expiration is not set.</summary>
         public int? DaysUntilExpiry { get; set; }
 
+        /// <summary>True when the certificate has already expired.</summary>
+        public bool IsExpired => DaysUntilExpiry < 0;
+
         /// <summary>True when the certificate is at or below the warning threshold.</summary>
         public bool IsWarning { get; set; }
     }

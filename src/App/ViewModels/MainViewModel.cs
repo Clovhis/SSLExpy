@@ -25,7 +25,6 @@ namespace AzureKvSslExpirationChecker.ViewModels
             _scanService = new AzureScanService(auth);
             Records = new ObservableCollection<CertificateRecord>();
             Logs = new ObservableCollection<string>();
-            ThresholdDays = 30;
         }
 
         [ObservableProperty]
@@ -39,9 +38,6 @@ namespace AzureKvSslExpirationChecker.ViewModels
 
         [ObservableProperty]
         private string clientSecret = string.Empty; // Never logged
-
-        [ObservableProperty]
-        private int thresholdDays;
 
         [ObservableProperty]
         private string outputFolder = string.Empty;
@@ -106,12 +102,11 @@ namespace AzureKvSslExpirationChecker.ViewModels
             if (IsScanning)
                 return;
 
-            if (string.IsNullOrWhiteSpace(SubscriptionId) ||
-                string.IsNullOrWhiteSpace(TenantId) ||
-                string.IsNullOrWhiteSpace(ClientId) ||
-                string.IsNullOrWhiteSpace(ClientSecret) ||
-                string.IsNullOrWhiteSpace(OutputFolder) ||
-                ThresholdDays < 1 || ThresholdDays > 365)
+              if (string.IsNullOrWhiteSpace(SubscriptionId) ||
+                  string.IsNullOrWhiteSpace(TenantId) ||
+                  string.IsNullOrWhiteSpace(ClientId) ||
+                  string.IsNullOrWhiteSpace(ClientSecret) ||
+                  string.IsNullOrWhiteSpace(OutputFolder))
             {
                 System.Windows.MessageBox.Show("Please fill in all fields with valid values.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -133,15 +128,16 @@ namespace AzureKvSslExpirationChecker.ViewModels
 
             try
             {
-                var result = await _scanService.ScanAsync(
-                    SubscriptionId,
-                    TenantId,
-                    ClientId,
-                    ClientSecret,
-                    OutputFolder,
-                    ThresholdDays,
-                    progress,
-                    _cts.Token).ConfigureAwait(false);
+                  const int warningDays = 90;
+                  var result = await _scanService.ScanAsync(
+                      SubscriptionId,
+                      TenantId,
+                      ClientId,
+                      ClientSecret,
+                      OutputFolder,
+                      warningDays,
+                      progress,
+                      _cts.Token).ConfigureAwait(false);
 
                 foreach (var r in result.Records)
                     Records.Add(r);
