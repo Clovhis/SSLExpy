@@ -27,7 +27,6 @@ namespace AzureKvSslExpirationChecker.Views
             TxtTenantId.Text       = Properties.Settings.Default.TenantId ?? string.Empty;
             TxtClientId.Text       = Properties.Settings.Default.ClientId ?? string.Empty;
             TxtOutputFolder.Text   = Properties.Settings.Default.OutputFolder ?? string.Empty;
-            TxtWarningDays.Text    = (Properties.Settings.Default.WarningDays > 0 ? Properties.Settings.Default.WarningDays : 90).ToString();
             if (!string.IsNullOrEmpty(Properties.Settings.Default.ClientSecret))
                 PwdClientSecret.Password = Properties.Settings.Default.ClientSecret;
             btnStartScan.Click += btnStartScan_Click;
@@ -60,7 +59,6 @@ namespace AzureKvSslExpirationChecker.Views
             Properties.Settings.Default.TenantId       = TxtTenantId.Text.Trim();
             Properties.Settings.Default.ClientId       = TxtClientId.Text.Trim();
             Properties.Settings.Default.OutputFolder   = TxtOutputFolder.Text.Trim();
-            if (int.TryParse(TxtWarningDays.Text, out var wd)) Properties.Settings.Default.WarningDays = wd;
             // Properties.Settings.Default.ClientSecret = PwdClientSecret.Password; // only if chosen
             Properties.Settings.Default.Save();
         }
@@ -81,7 +79,7 @@ namespace AzureKvSslExpirationChecker.Views
                 string clientId = vm.ClientId?.Trim();
                 string clientSecret = vm.ClientSecret;
                 string outputFolder = vm.OutputFolder?.Trim();
-                int warningDays = vm.ThresholdDays;
+                const int warningDays = 90;
 
                 if (string.IsNullOrWhiteSpace(subscriptionId) ||
                     string.IsNullOrWhiteSpace(tenantId) ||

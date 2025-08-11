@@ -18,6 +18,7 @@
     <PackageId>EY-GDS-SRE-SSL-ExpiryShield</PackageId>
     <Company>EY GDS CTP-SRE Team</Company>
     <Authors>Leo Vargas</Authors>
+    <ApplicationIcon>Assets/app_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.2" />
@@ -39,5 +40,31 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets/ey_logo_24.png" />
+    <Resource Include="Assets/app_icon.ico" />
+    <None Include="Assets/app_icon.ico.b64" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <UsingTask TaskName="Base64ToFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Base64File ParameterType="System.String" Required="true" />
+      <OutputFile ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var bytes = System.Convert.FromBase64String(System.IO.File.ReadAllText(Base64File));
+        System.IO.File.WriteAllBytes(OutputFile, bytes);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GenerateAppIcon" BeforeTargets="PrepareResources">
+    <Base64ToFile Base64File="Assets/app_icon.ico.b64" OutputFile="Assets/app_icon.ico" />
+  </Target>
 </Project>
