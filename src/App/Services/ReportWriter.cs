@@ -15,8 +15,9 @@ namespace AzureKvSslExpirationChecker.Services
         /// <summary>
         /// Writes the scan result to a text file and returns the file path.
         /// </summary>
-        public async Task<string> WriteTxtAsync(ScanResult result, string subscriptionId, int thresholdDays, string outputFolder, CancellationToken ct)
+        public async Task<string> WriteTxtAsync(ScanResult result, string subscriptionId, string outputFolder, CancellationToken ct)
         {
+            const int warningDays = 90;
             Directory.CreateDirectory(outputFolder);
             var fileName = $"kv-ssl-scan_{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ssZ}.txt";
             var path = Path.Combine(outputFolder, fileName);
@@ -26,7 +27,7 @@ namespace AzureKvSslExpirationChecker.Services
 
             await writer.WriteLineAsync("Azure Key Vault SSL Certificate Scan").ConfigureAwait(false);
             await writer.WriteLineAsync($"Subscription: {subscriptionId}").ConfigureAwait(false);
-            await writer.WriteLineAsync($"Threshold: {thresholdDays} days").ConfigureAwait(false);
+            await writer.WriteLineAsync($"Threshold: {warningDays} days").ConfigureAwait(false);
             await writer.WriteLineAsync($"Timestamp (UTC): {result.ScannedAtUtc:O}").ConfigureAwait(false);
             await writer.WriteLineAsync(string.Empty).ConfigureAwait(false);
 
