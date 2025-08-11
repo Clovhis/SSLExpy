@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -50,21 +50,8 @@
     </Content>
   </ItemGroup>
 
-  <UsingTask TaskName="Base64ToFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
-    <ParameterGroup>
-      <Base64File ParameterType="System.String" Required="true" />
-      <OutputFile ParameterType="System.String" Required="true" />
-    </ParameterGroup>
-    <Task>
-      <Reference Include="System" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
-        var bytes = System.Convert.FromBase64String(System.IO.File.ReadAllText(Base64File));
-        System.IO.File.WriteAllBytes(OutputFile, bytes);
-      ]]></Code>
-    </Task>
-  </UsingTask>
-
-  <Target Name="GenerateAppIcon" BeforeTargets="PrepareResources">
-    <Base64ToFile Base64File="Assets/app_icon.ico.b64" OutputFile="Assets/app_icon.ico" />
+  <Target Name="GenerateAppIcon" BeforeTargets="BeforeBuild">
+    <Exec Command="base64 -d &quot;$(MSBuildProjectDirectory)/Assets/app_icon.ico.b64&quot; > &quot;$(MSBuildProjectDirectory)/Assets/app_icon.ico&quot;" />
   </Target>
+
 </Project>
