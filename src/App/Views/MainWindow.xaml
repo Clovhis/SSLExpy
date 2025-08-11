@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:AzureKvSslExpirationChecker.ViewModels"
         xmlns:helpers="clr-namespace:AzureKvSslExpirationChecker.Helpers"
         mc:Ignorable="d"
-        Title="EY-GDS SRE SSL-ExpiryShield" Height="600" Width="900" Icon="Assets/app_icon.ico">
+        Title="EY-GDS SRE SSL-ExpiryShield" Height="600" Width="900">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
