@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -11,8 +11,13 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
     <Nullable>enable</Nullable>
-    <AssemblyTitle>EY-GDS SRE SSL-ExpiryShield</AssemblyTitle>
+    <AssemblyName>EY-GDS SRE SSL-ExpiryShield</AssemblyName>
+    <RootNamespace>EY_GDS_SRE_SSL_ExpiryShield</RootNamespace>
     <Product>EY-GDS SRE SSL-ExpiryShield</Product>
+    <AssemblyTitle>EY-GDS SRE SSL-ExpiryShield</AssemblyTitle>
+    <PackageId>EY-GDS-SRE-SSL-ExpiryShield</PackageId>
+    <Company>EY GDS CTP-SRE Team</Company>
+    <Authors>Leo Vargas</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.2" />

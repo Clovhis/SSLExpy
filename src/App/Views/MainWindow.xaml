@@ -101,7 +101,7 @@
         </StackPanel>
         <StatusBar Grid.Row="3" Padding="4">
             <StatusBarItem>
-                <TextBlock Text="Author: Leonardo R. Vargas — Property of EY GDS CTP-SRE Team"
+                <TextBlock Text="Author: Leo Vargas — Property of EY GDS CTP-SRE Team"
                            VerticalAlignment="Center"/>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
