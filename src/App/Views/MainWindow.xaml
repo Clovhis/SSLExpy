@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:AzureKvSslExpirationChecker.ViewModels"
         xmlns:helpers="clr-namespace:AzureKvSslExpirationChecker.Helpers"
         mc:Ignorable="d"
-        Title="Azure KV SSL Expiration Checker" Height="600" Width="900">
+        Title="EY-GDS SRE SSL-ExpiryShield" Height="600" Width="900">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -64,6 +65,21 @@
                 <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0" ItemsSource="{Binding Records}" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="White"/>
+                        <Style.Triggers>
+                            <!-- Expired -> Red -->
+                            <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                <Setter Property="Background" Value="#FFE6B8B8"/>
+                            </DataTrigger>
+                            <!-- Warning (<= 90 days) -> Yellow -->
+                            <DataTrigger Binding="{Binding IsWarning}" Value="True">
+                                <Setter Property="Background" Value="#FFFFF3CD"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Vault" Binding="{Binding VaultName}" Width="*"/>
                     <DataGridTextColumn Header="Certificate" Binding="{Binding CertificateName}" Width="2*"/>
@@ -83,5 +99,14 @@
             <Button x:Name="btnCancel" Content="Cancel" IsEnabled="False" Margin="0,0,10,0"/>
             <Button Content="Open Output Folder" Command="{Binding OpenOutputFolderCommand}"/>
         </StackPanel>
+        <StatusBar Grid.Row="3" Padding="4">
+            <StatusBarItem>
+                <TextBlock Text="Author: Leonardo R. Vargas — Property of EY GDS CTP-SRE Team"
+                           VerticalAlignment="Center"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Image Width="24" Height="24" Source="pack://application:,,,/Assets/ey_logo_24.png" Stretch="None"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

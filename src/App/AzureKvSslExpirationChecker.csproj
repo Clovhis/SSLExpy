@@ -11,6 +11,8 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
     <Nullable>enable</Nullable>
+    <AssemblyTitle>EY-GDS SRE SSL-ExpiryShield</AssemblyTitle>
+    <Product>EY-GDS SRE SSL-ExpiryShield</Product>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.2" />
@@ -29,5 +31,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets/ey_logo_24.png" />
   </ItemGroup>
 </Project>
