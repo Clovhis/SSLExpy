@@ -74,11 +74,11 @@ namespace AzureKvSslExpirationChecker.Views
                 TxtLog.Clear();
                 _cts = new CancellationTokenSource();
 
-                string subscriptionId = vm.SubscriptionId?.Trim();
-                string tenantId = vm.TenantId?.Trim();
-                string clientId = vm.ClientId?.Trim();
-                string clientSecret = vm.ClientSecret;
-                string outputFolder = vm.OutputFolder?.Trim();
+                string subscriptionId = vm.SubscriptionId.Trim();
+                string tenantId = vm.TenantId.Trim();
+                string clientId = vm.ClientId.Trim();
+                string clientSecret = vm.ClientSecret.Trim();
+                string outputFolder = vm.OutputFolder.Trim();
                 const int warningDays = 90;
 
                 if (string.IsNullOrWhiteSpace(subscriptionId) ||
