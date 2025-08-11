@@ -18,7 +18,6 @@
     <PackageId>EY-GDS-SRE-SSL-ExpiryShield</PackageId>
     <Company>EY GDS CTP-SRE Team</Company>
     <Authors>Leo Vargas</Authors>
-    <ApplicationIcon>Assets/app_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.2" />
@@ -40,8 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets/ey_logo_24.png" />
-    <Resource Include="Assets/app_icon.ico" />
-    <None Include="Assets/app_icon.ico.b64" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="readme.txt">
@@ -49,9 +46,4 @@
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
-
-  <Target Name="GenerateAppIcon" BeforeTargets="BeforeBuild">
-    <Exec Command="base64 -d &quot;$(MSBuildProjectDirectory)/Assets/app_icon.ico.b64&quot; > &quot;$(MSBuildProjectDirectory)/Assets/app_icon.ico&quot;" />
-  </Target>
-
 </Project>
